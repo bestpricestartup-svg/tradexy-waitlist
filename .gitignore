@@ -57,3 +57,5 @@ next-env.d.ts
 # caches
 .cache
 .eslintcache
+
+.vercel
