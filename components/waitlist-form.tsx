@@ -187,6 +187,9 @@ export function WaitlistForm() {
             type="text"
             value={code}
           />
+          <p className="mt-2 text-center text-[11px] text-slate-500 sm:text-xs">
+            Verification takes a few seconds.
+          </p>
         </div>
 
         {error && (
@@ -279,7 +282,7 @@ export function WaitlistForm() {
 
       <div className="space-y-0.5 pt-0.5 text-center text-[11px] leading-snug text-slate-500 sm:text-xs">
         <p>Only first 500 users get access at launch.</p>
-        <p>~367 spots left.</p>
+        <p>Around 367 spots left.</p>
       </div>
     </form>
   );

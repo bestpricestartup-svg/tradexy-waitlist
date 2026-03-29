@@ -15,7 +15,7 @@ export function WaitlistHero() {
         <p>
           Tradexy shows only verified trading results backed by Myfxbook data.
         </p>
-        <p className="text-slate-400">No fake screenshots. No bullshit.</p>
+        <p className="text-slate-400">No fake screenshots. Just verified data.</p>
       </div>
       <ul className="mt-8 flex list-none flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-2.5">
         {TRUST_BADGES.map((label) => (
