@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { adminSignOut } from "@/app/admin/actions";
-import { SiteHeader } from "@/components/site-header";
 import { getAdminEmail } from "@/lib/admin-auth";
 import { getAdminSessionEmail } from "@/lib/admin/session-cookie";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -14,7 +13,6 @@ export default async function AdminWaitlistPage() {
   if (!configured) {
     return (
       <div className="flex min-h-screen flex-col">
-        <SiteHeader />
         <main className="mx-auto max-w-6xl flex-1 px-4 py-10">
           <p className="text-red-400">
             Set{" "}
@@ -43,7 +41,6 @@ export default async function AdminWaitlistPage() {
     console.error("[waitlist] admin list failed", error.message);
     return (
       <div className="flex min-h-screen flex-col">
-        <SiteHeader />
         <main className="mx-auto max-w-6xl flex-1 px-4 py-10">
           <p className="text-red-400">Failed to load waitlist.</p>
         </main>
@@ -53,7 +50,6 @@ export default async function AdminWaitlistPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

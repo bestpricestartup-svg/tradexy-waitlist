@@ -1,11 +1,8 @@
 import Link from "next/link";
 
-import { SiteHeader } from "@/components/site-header";
-
 export default function WaitlistErrorPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-6 py-16">
         <div className="rounded-2xl border border-white/10 bg-tx-surface/55 p-8 shadow-card backdrop-blur-xl">
           <h1 className="text-2xl font-bold tracking-tight text-white">
