@@ -1,25 +1,53 @@
+import { readFile } from "fs/promises";
+import path from "path";
+
 import { Resend } from "resend";
 
 const RESEND_TEST_FROM = "Tradexy <onboarding@resend.dev>";
 
-/**
- * Logo turi būti viešai pasiekiamas (Gmail/Outlook krauna iš URL).
- * Jei `NEXT_PUBLIC_SITE_URL` yra localhost – naudojamas tradexyai.com.
- * Override: NEXT_PUBLIC_EMAIL_LOGO_URL=https://tradexyai.com/logo.png
- */
-function logoAbsoluteUrl(): string {
-  const override = process.env.NEXT_PUBLIC_EMAIL_LOGO_URL?.trim();
-  if (override) {
-    return override.replace(/\/$/, "");
+/** Vienintelis leistinas el. laiško logotipas — `public/` aplanke, inline per Resend. */
+const EMAIL_LOGO_FILENAME = "tradexy-email-logo.png";
+/** Inline MIME Content-ID (must match `img src="cid:…"`). */
+const EMAIL_LOGO_CID = "tradexy-logo";
+
+async function requireEmailLogoForSend(): Promise<{
+  logoSrc: string;
+  attachments: {
+    filename: string;
+    content: Buffer;
+    contentType: string;
+    contentId: string;
+  }[];
+}> {
+  const filePath = path.join(process.cwd(), "public", EMAIL_LOGO_FILENAME);
+  let buf: Buffer;
+  try {
+    buf = await readFile(filePath);
+  } catch {
+    throw new Error(
+      `Missing email logo: place ${EMAIL_LOGO_FILENAME} in the public/ folder (only this file is used).`
+    );
   }
-  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
-  if (
-    base &&
-    !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(base)
-  ) {
-    return `${base}/logo.png`;
+  if (buf.length === 0) {
+    throw new Error(`Email logo file is empty: ${filePath}`);
   }
-  return "https://tradexyai.com/logo.png";
+  return {
+    logoSrc: `cid:${EMAIL_LOGO_CID}`,
+    attachments: [
+      {
+        filename: EMAIL_LOGO_FILENAME,
+        content: buf,
+        contentType: "image/png",
+        contentId: EMAIL_LOGO_CID,
+      },
+    ],
+  };
+}
+
+function emailLogoImgTag(logoSrc: string): string {
+  const src = logoSrc.startsWith("cid:") ? logoSrc : escapeHtml(logoSrc);
+  // Tik width + height:auto — fiksuotas height HTML atribute Gmail dažnai iškraipo platus wordmark.
+  return `<img src="${src}" alt="Tradexy" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto 16px auto;padding:0;border:0;outline:none;text-decoration:none;vertical-align:middle;background-color:transparent;-ms-interpolation-mode:bicubic;" />`;
 }
 
 function escapeHtml(s: string): string {
@@ -50,6 +78,12 @@ async function sendWithResendDevFallbacks(params: {
   text: string;
   html: string;
   logLabel: string;
+  attachments?: {
+    filename: string;
+    content: Buffer;
+    contentType: string;
+    contentId: string;
+  }[];
 }): Promise<void> {
   let lastError: unknown;
 
@@ -93,6 +127,7 @@ async function sendWithResendDevFallbacks(params: {
       subject: params.subject,
       text: params.text,
       html: params.html,
+      attachments: params.attachments,
     });
 
     if (data && isDev()) {
@@ -143,8 +178,7 @@ function printDevConsoleEmail(params: {
 }
 
 /** Waitlist: šviesus šablonas, lentelėmis Outlook suderinamumui. */
-function buildWaitlistVerificationHtml(safeCode: string): string {
-  const logo = escapeHtml(logoAbsoluteUrl());
+function buildWaitlistVerificationHtml(safeCode: string, logoSrc: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,8 +193,8 @@ function buildWaitlistVerificationHtml(safeCode: string): string {
     <td align="center" style="padding:40px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;border-collapse:collapse;background:#ffffff;border-radius:12px;">
         <tr>
-          <td style="padding:32px;text-align:center;">
-            <img src="${logo}" alt="Tradexy" width="120" height="40" style="height:40px;width:auto;max-width:160px;margin:0 auto 24px auto;display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;" />
+          <td style="padding:32px 24px;text-align:center;">
+            ${emailLogoImgTag(logoSrc)}
             <h2 style="margin:0 0 16px;font-size:22px;color:#111111;line-height:1.3;">Your verification code</h2>
             <div style="font-size:32px;letter-spacing:6px;font-weight:600;color:#111111;background:#f1f3f5;padding:16px 24px;border-radius:8px;margin:20px 0;line-height:1.2;">${safeCode}</div>
             <p style="font-size:14px;color:#555555;margin:0 0 16px;line-height:1.5;">This code will expire in 10 minutes.</p>
@@ -178,8 +212,7 @@ function buildWaitlistVerificationHtml(safeCode: string): string {
 }
 
 /** Admin: ta pati šviesi estetika, kompaktiškas turinys. */
-function buildAdminLoginHtml(safeCode: string): string {
-  const logo = escapeHtml(logoAbsoluteUrl());
+function buildAdminLoginHtml(safeCode: string, logoSrc: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -194,8 +227,8 @@ function buildAdminLoginHtml(safeCode: string): string {
     <td align="center" style="padding:40px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;border-collapse:collapse;background:#ffffff;border-radius:12px;">
         <tr>
-          <td style="padding:32px;text-align:center;">
-            <img src="${logo}" alt="Tradexy" width="120" height="40" style="height:40px;width:auto;max-width:160px;margin:0 auto 24px auto;display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;" />
+          <td style="padding:32px 24px;text-align:center;">
+            ${emailLogoImgTag(logoSrc)}
             <h2 style="margin:0 0 16px;font-size:22px;color:#111111;line-height:1.3;">Your admin login code</h2>
             <div style="font-size:32px;letter-spacing:6px;font-weight:600;color:#111111;background:#f1f3f5;padding:16px 24px;border-radius:8px;margin:20px 0;line-height:1.2;">${safeCode}</div>
             <p style="font-size:14px;color:#555555;margin:0 0 16px;line-height:1.5;">This code will expire in 10 minutes.</p>
@@ -229,10 +262,11 @@ export async function sendWaitlistVerificationEmail(
 ): Promise<void> {
   if (isDev()) {
     console.log("[waitlist] Sending email to:", to);
-    console.log("[waitlist] logo URL:", logoAbsoluteUrl());
   }
 
   const safe = escapeHtml(code);
+  const { logoSrc, attachments: logoAttachments } =
+    await requireEmailLogoForSend();
 
   const textBody = `Your verification code: ${code}
 
@@ -249,8 +283,9 @@ You're early. First 500 users will get special access at launch.
     to,
     subject: "Your Tradexy verification code",
     text: textBody,
-    html: buildWaitlistVerificationHtml(safe),
+    html: buildWaitlistVerificationHtml(safe, logoSrc),
     logLabel: "waitlist",
+    attachments: logoAttachments,
   });
 }
 
@@ -260,6 +295,8 @@ export async function sendAdminLoginEmail(to: string, code: string): Promise<voi
   }
 
   const safe = escapeHtml(code);
+  const { logoSrc, attachments: logoAttachments } =
+    await requireEmailLogoForSend();
 
   const textBody = `Your admin login code: ${code}
 
@@ -273,7 +310,8 @@ If you did not request this code, you can ignore this email.
     to,
     subject: "Your Tradexy admin login code",
     text: textBody,
-    html: buildAdminLoginHtml(safe),
+    html: buildAdminLoginHtml(safe, logoSrc),
     logLabel: "admin",
+    attachments: logoAttachments,
   });
 }
