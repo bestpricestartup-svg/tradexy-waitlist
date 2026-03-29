@@ -7,8 +7,13 @@ const RESEND_TEST_FROM = "Tradexy <onboarding@resend.dev>";
 
 /** Vienintelis leistinas el. laiško logotipas — `public/` aplanke, inline per Resend. */
 const EMAIL_LOGO_FILENAME = "tradexy-email-logo.png";
-/** Inline MIME Content-ID (must match `img src="cid:…"`). */
-const EMAIL_LOGO_CID = "tradexy-logo";
+/** Inline MIME Content-ID (must match `img src="cid:…"`). Keisk, jei Gmail rodo seną paveikslėlį. */
+const EMAIL_LOGO_CID = "tradexy-wordmark";
+/** `tradexy-email-logo.png` natūralūs px (wordmark); atvaizdavimas išlaiko proporciją. */
+const LOGO_SRC_W = 715;
+const LOGO_SRC_H = 182;
+const LOGO_DISPLAY_W = 360;
+const LOGO_DISPLAY_H = Math.round((LOGO_SRC_H * LOGO_DISPLAY_W) / LOGO_SRC_W);
 
 async function requireEmailLogoForSend(): Promise<{
   logoSrc: string;
@@ -44,10 +49,18 @@ async function requireEmailLogoForSend(): Promise<{
   };
 }
 
-function emailLogoImgTag(logoSrc: string): string {
+/** Lentelė + aiškūs matmenys — Gmail kitaip gali „suskleisti“ platų PNG į kvadratą. */
+function emailLogoBlock(logoSrc: string): string {
   const src = logoSrc.startsWith("cid:") ? logoSrc : escapeHtml(logoSrc);
-  // Tik width + height:auto — fiksuotas height HTML atribute Gmail dažnai iškraipo platus wordmark.
-  return `<img src="${src}" alt="Tradexy" width="320" style="display:block;width:320px;max-width:100%;height:auto;margin:0 auto 16px auto;padding:0;border:0;outline:none;text-decoration:none;vertical-align:middle;background-color:transparent;-ms-interpolation-mode:bicubic;" />`;
+  const w = LOGO_DISPLAY_W;
+  const h = LOGO_DISPLAY_H;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 16px auto;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+  <tr>
+    <td align="center" style="padding:0;line-height:0;mso-line-height-rule:exactly;">
+      <img src="${src}" alt="Tradexy" width="${w}" height="${h}" border="0" style="display:block;width:${w}px;max-width:100%;height:auto;margin:0;padding:0;border:0;outline:none;text-decoration:none;vertical-align:top;-ms-interpolation-mode:bicubic;" />
+    </td>
+  </tr>
+</table>`;
 }
 
 function escapeHtml(s: string): string {
@@ -194,7 +207,7 @@ function buildWaitlistVerificationHtml(safeCode: string, logoSrc: string): strin
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;border-collapse:collapse;background:#ffffff;border-radius:12px;">
         <tr>
           <td style="padding:32px 24px;text-align:center;">
-            ${emailLogoImgTag(logoSrc)}
+            ${emailLogoBlock(logoSrc)}
             <h2 style="margin:0 0 16px;font-size:22px;color:#111111;line-height:1.3;">Your verification code</h2>
             <div style="font-size:32px;letter-spacing:6px;font-weight:600;color:#111111;background:#f1f3f5;padding:16px 24px;border-radius:8px;margin:20px 0;line-height:1.2;">${safeCode}</div>
             <p style="font-size:14px;color:#555555;margin:0 0 16px;line-height:1.5;">This code will expire in 10 minutes.</p>
@@ -228,7 +241,7 @@ function buildAdminLoginHtml(safeCode: string, logoSrc: string): string {
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;border-collapse:collapse;background:#ffffff;border-radius:12px;">
         <tr>
           <td style="padding:32px 24px;text-align:center;">
-            ${emailLogoImgTag(logoSrc)}
+            ${emailLogoBlock(logoSrc)}
             <h2 style="margin:0 0 16px;font-size:22px;color:#111111;line-height:1.3;">Your admin login code</h2>
             <div style="font-size:32px;letter-spacing:6px;font-weight:600;color:#111111;background:#f1f3f5;padding:16px 24px;border-radius:8px;margin:20px 0;line-height:1.2;">${safeCode}</div>
             <p style="font-size:14px;color:#555555;margin:0 0 16px;line-height:1.5;">This code will expire in 10 minutes.</p>
