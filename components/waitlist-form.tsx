@@ -16,7 +16,7 @@ const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-tx-neon/45 focus:ring-2 focus:ring-tx-neon/15";
 
 const btnPrimaryClass =
-  "flex w-full items-center justify-center rounded-xl bg-gradient-cta px-4 py-3.5 text-sm font-semibold text-tx-bg shadow-neon-sm transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none";
+  "flex w-full items-center justify-center rounded-xl border border-white/20 bg-gradient-cta px-4 py-4 text-[15px] font-bold text-[#050607] shadow-neon ring-1 ring-tx-neon/25 transition hover:brightness-110 hover:shadow-[0_0_28px_-4px_rgba(52,245,181,0.55)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:ring-0";
 
 export function WaitlistForm() {
   const router = useRouter();
@@ -232,15 +232,18 @@ export function WaitlistForm() {
           </button>
         </div>
 
-        <p className="text-center text-xs text-slate-500">
-          Get early access when we launch
+        <p className="text-center text-[11px] text-slate-500 sm:text-xs">
+          Only first 500 users get access at launch.
         </p>
       </form>
     );
   }
 
   return (
-    <form className="w-full space-y-4" onSubmit={onSubmitEmail}>
+    <form
+      className="w-full space-y-5 sm:space-y-4"
+      onSubmit={onSubmitEmail}
+    >
       <div>
         <label className="sr-only" htmlFor="email">
           Email
@@ -252,7 +255,7 @@ export function WaitlistForm() {
           id="email"
           name="email"
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
+          placeholder="Enter your email"
           required
           type="email"
           value={email}
@@ -271,12 +274,13 @@ export function WaitlistForm() {
       )}
 
       <button className={btnPrimaryClass} disabled={loading} type="submit">
-        {loading ? "Sending…" : "Join waitlist"}
+        {loading ? "Sending…" : "Get early access"}
       </button>
 
-      <p className="text-center text-xs text-slate-500">
-        Get early access when we launch
-      </p>
+      <div className="space-y-0.5 pt-0.5 text-center text-[11px] leading-snug text-slate-500 sm:text-xs">
+        <p>Only first 500 users get access at launch.</p>
+        <p>~367 spots left.</p>
+      </div>
     </form>
   );
 }

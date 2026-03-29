@@ -24,7 +24,7 @@ const config: Config = {
       },
       backgroundImage: {
         "gradient-cta":
-          "linear-gradient(135deg, #22f3a0 0%, #14d9b0 45%, #22d3ee 100%)",
+          "linear-gradient(135deg, #34f5b5 0%, #1ae0b5 42%, #38e0ff 100%)",
       },
     },
   },

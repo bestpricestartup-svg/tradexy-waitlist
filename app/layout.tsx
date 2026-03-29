@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Tradexy — Waitlist",
+  title: "Tradexy AI - Waitlist",
   description: "Get early access to Tradexy when we launch.",
 };
 
