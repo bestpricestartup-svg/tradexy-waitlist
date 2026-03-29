@@ -12,6 +12,12 @@ function normalizeEmailClient(raw: string): string {
   return raw.trim().toLowerCase();
 }
 
+const inputClass =
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-tx-neon/45 focus:ring-2 focus:ring-tx-neon/15";
+
+const btnPrimaryClass =
+  "flex w-full items-center justify-center rounded-xl bg-gradient-cta px-4 py-3.5 text-sm font-semibold text-tx-bg shadow-neon-sm transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none";
+
 export function WaitlistForm() {
   const router = useRouter();
   const [step, setStep] = useState<"email" | "code" | "already">("email");
@@ -139,16 +145,16 @@ export function WaitlistForm() {
 
   if (step === "already") {
     return (
-      <div className="mt-10 w-full max-w-md space-y-4">
+      <div className="w-full space-y-4">
         <div
-          className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-200"
+          className="rounded-xl border border-white/10 bg-tx-elevated/60 p-4 text-sm text-slate-200"
           role="status"
         >
-          <p className="font-semibold">Already on the waitlist</p>
-          <p className="mt-1">{info}</p>
+          <p className="font-semibold text-tx-neon">Already on the waitlist</p>
+          <p className="mt-1 text-tx-muted">{info}</p>
         </div>
-        <p className="text-center text-xs text-neutral-500">
-          Get early access when we launch
+        <p className="text-center text-xs text-slate-500">
+          We&apos;ll notify you when Tradexy opens up.
         </p>
       </div>
     );
@@ -156,12 +162,10 @@ export function WaitlistForm() {
 
   if (step === "code") {
     return (
-      <form
-        className="mt-10 w-full max-w-md space-y-4"
-        onSubmit={onVerify}
-      >
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Enter the 6-digit code sent to <strong>{email}</strong>
+      <form className="w-full space-y-4" onSubmit={onVerify}>
+        <p className="text-sm text-tx-muted">
+          Enter the 6-digit code sent to{" "}
+          <strong className="text-slate-200">{email}</strong>
         </p>
         <div>
           <label className="sr-only" htmlFor="code">
@@ -169,7 +173,7 @@ export function WaitlistForm() {
           </label>
           <input
             autoComplete="one-time-code"
-            className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-center font-mono text-2xl tracking-[0.4em] text-neutral-900 outline-none focus:border-neutral-900 focus:ring-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
+            className={`${inputClass} text-center font-mono text-2xl tracking-[0.4em]`}
             disabled={loading}
             id="code"
             inputMode="numeric"
@@ -186,18 +190,18 @@ export function WaitlistForm() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+          <p className="text-sm text-red-400" role="alert">
             {error}
           </p>
         )}
         {info && (
-          <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
+          <p className="text-sm text-tx-muted" role="status">
             {info}
           </p>
         )}
 
         <button
-          className="flex w-full items-center justify-center rounded-lg bg-neutral-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white"
+          className={btnPrimaryClass}
           disabled={loading || code.length !== 6}
           type="submit"
         >
@@ -206,7 +210,7 @@ export function WaitlistForm() {
 
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
           <button
-            className="text-sm text-neutral-600 underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50 dark:text-neutral-400"
+            className="text-sm text-tx-cyan/90 underline decoration-tx-cyan/40 underline-offset-4 transition hover:text-tx-cyan disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
             disabled={resendSec > 0 || loading}
             onClick={onResend}
             type="button"
@@ -214,7 +218,7 @@ export function WaitlistForm() {
             {resendSec > 0 ? `Resend code in ${resendSec}s` : "Resend code"}
           </button>
           <button
-            className="text-sm text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+            className="text-sm text-slate-500 transition hover:text-slate-300"
             onClick={() => {
               setStep("email");
               setCode("");
@@ -228,7 +232,7 @@ export function WaitlistForm() {
           </button>
         </div>
 
-        <p className="text-center text-xs text-neutral-500">
+        <p className="text-center text-xs text-slate-500">
           Get early access when we launch
         </p>
       </form>
@@ -236,14 +240,14 @@ export function WaitlistForm() {
   }
 
   return (
-    <form className="mt-10 w-full max-w-md space-y-4" onSubmit={onSubmitEmail}>
+    <form className="w-full space-y-4" onSubmit={onSubmitEmail}>
       <div>
         <label className="sr-only" htmlFor="email">
           Email
         </label>
         <input
           autoComplete="email"
-          className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-neutral-900 focus:ring-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50 dark:focus:border-neutral-100"
+          className={inputClass}
           disabled={loading}
           id="email"
           name="email"
@@ -256,25 +260,21 @@ export function WaitlistForm() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className="text-sm text-red-400" role="alert">
           {error}
         </p>
       )}
       {debugInfo && (
-        <pre className="max-h-32 overflow-auto rounded border border-amber-200 bg-amber-50 p-2 text-left text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+        <pre className="max-h-32 overflow-auto rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-left text-xs text-amber-100">
           {debugInfo}
         </pre>
       )}
 
-      <button
-        className="flex w-full items-center justify-center rounded-lg bg-neutral-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white"
-        disabled={loading}
-        type="submit"
-      >
+      <button className={btnPrimaryClass} disabled={loading} type="submit">
         {loading ? "Sending…" : "Join waitlist"}
       </button>
 
-      <p className="text-center text-xs text-neutral-500">
+      <p className="text-center text-xs text-slate-500">
         Get early access when we launch
       </p>
     </form>

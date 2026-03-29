@@ -3,18 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --tx-bg: #0b0c0d;
+  --tx-fg: #e2e8f0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  min-height: 100vh;
+  background-color: var(--tx-bg);
+  color: var(--tx-fg);
+  background-image:
+    radial-gradient(
+      ellipse 90% 55% at 50% -15%,
+      rgba(34, 243, 160, 0.14),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 55% 45% at 100% 0%,
+      rgba(34, 211, 238, 0.09),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 0% 20%,
+      rgba(34, 243, 160, 0.05),
+      transparent 45%
+    );
 }
