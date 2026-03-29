@@ -7,7 +7,7 @@ import {
 } from "@/lib/utils/rate-limit";
 import { isValidEmail, normalizeEmail } from "@/lib/utils/validators";
 
-import { getAdminEmail, isAdminUserEmail } from "@/lib/admin-auth";
+import { isAdminConfigured, isAdminUserEmail } from "@/lib/admin-auth";
 import {
   adminOtpMemoryDelete,
   adminOtpMemorySet,
@@ -34,14 +34,16 @@ export async function requestAdminLoginCode(
   ip: string
 ): Promise<AdminRequestCodeResult> {
   const email = normalizeEmail(rawEmail ?? "");
-  const adminEmail = getAdminEmail();
-
-  if (!adminEmail) {
+  if (!isAdminConfigured()) {
     return { ok: false, message: "Admin email is not configured." };
   }
 
   if (!isValidEmail(email) || !isAdminUserEmail(email)) {
-    return { ok: false, message: "You are not allowed to sign in here." };
+    return {
+      ok: false,
+      message:
+        "This email is not allowed. Set ADMIN_EMAIL in your host (e.g. Vercel) to match the address you use here.",
+    };
   }
 
   const admin = createAdminClient();

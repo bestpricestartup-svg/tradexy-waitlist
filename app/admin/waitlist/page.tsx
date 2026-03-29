@@ -2,14 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { adminSignOut } from "@/app/admin/actions";
-import { getAdminEmail } from "@/lib/admin-auth";
+import { isAdminConfigured } from "@/lib/admin-auth";
 import { getAdminSessionEmail } from "@/lib/admin/session-cookie";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminWaitlistPage() {
-  const configured = getAdminEmail();
+  const configured = isAdminConfigured();
   if (!configured) {
     return (
       <div className="flex min-h-screen flex-col">

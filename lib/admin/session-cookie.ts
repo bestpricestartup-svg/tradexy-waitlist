@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-import { getAdminEmail, isAdminUserEmail } from "@/lib/admin-auth";
+import { isAdminConfigured, isAdminUserEmail } from "@/lib/admin-auth";
 
 const COOKIE_NAME = "tradexy_admin_session";
 const MAX_AGE_SEC = 60 * 60 * 24 * 7;
@@ -19,8 +19,7 @@ function signingSecret(): string {
 }
 
 export async function setAdminSessionCookie(email: string): Promise<void> {
-  const admin = getAdminEmail();
-  if (!admin || !isAdminUserEmail(email)) {
+  if (!isAdminConfigured() || !isAdminUserEmail(email)) {
     throw new Error("Invalid admin email");
   }
 
@@ -44,8 +43,7 @@ export async function setAdminSessionCookie(email: string): Promise<void> {
 }
 
 export async function getAdminSessionEmail(): Promise<string | null> {
-  const admin = getAdminEmail();
-  if (!admin) return null;
+  if (!isAdminConfigured()) return null;
 
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
@@ -75,7 +73,7 @@ export async function getAdminSessionEmail(): Promise<string | null> {
     ) as { email?: string; exp?: number };
     if (!data.email || typeof data.exp !== "number") return null;
     if (data.exp < Date.now()) return null;
-    if (data.email.toLowerCase() !== admin) return null;
+    if (!isAdminUserEmail(data.email)) return null;
     return data.email;
   } catch {
     return null;

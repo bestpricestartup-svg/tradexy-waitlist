@@ -20,7 +20,7 @@ RESEND_API_KEY=re_...
 FROM_EMAIL=Tradexy <hello@tradexyai.com>
 ```
 
-- **`ADMIN_EMAIL`** — vienintelis el. paštas, kuriuo galima prisijungti prie `/admin/login` (OTP ateina į šį dėžutę).
+- **`ADMIN_EMAIL`** — el. paštas (-ai) admin prisijungimui prie `/admin/login` (OTP į tą dėžutę). Galima kelis per kablelį: `a@x.com,b@y.com`.
 - **`FROM_EMAIL`** privalomas — be jo siuntimas meta klaidą (nėra fallback į `onboarding@resend.dev`).
 - **Resend** projekte turi būti patvirtintas domenas `tradexyai.com` ir siuntimas iš `hello@...`.
 

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AdminLoginForm } from "@/components/admin-login-form";
 import {
-  getAdminEmail,
+  isAdminConfigured,
   safeAdminRedirectPath,
 } from "@/lib/admin-auth";
 import { getAdminSessionEmail } from "@/lib/admin/session-cookie";
@@ -14,7 +14,7 @@ export default async function AdminLoginPage({
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const sp = await searchParams;
-  const configured = getAdminEmail();
+  const configured = isAdminConfigured();
 
   if (!configured) {
     return (

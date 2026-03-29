@@ -1,14 +1,29 @@
-/** Server-only. `ADMIN_EMAIL` is normalized once via trim + lowercase. */
+/** Server-only. `ADMIN_EMAIL` may be one address or several, comma-separated. */
+
+function parseAdminEmails(): string[] {
+  const raw = process.env.ADMIN_EMAIL?.trim() ?? "";
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0);
+}
+
+export function isAdminConfigured(): boolean {
+  return parseAdminEmails().length > 0;
+}
+
+/** Legacy: first allowlisted admin, or null. */
 export function getAdminEmail(): string | null {
-  const e = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  return e || null;
+  const list = parseAdminEmails();
+  return list[0] ?? null;
 }
 
 /** Compare admin policy using normalized lowercase on both sides. */
 export function isAdminUserEmail(email: string | undefined | null): boolean {
-  const admin = getAdminEmail();
-  if (!admin || !email) return false;
-  return email.trim().toLowerCase() === admin;
+  if (!email) return false;
+  const n = email.trim().toLowerCase();
+  return parseAdminEmails().includes(n);
 }
 
 /**
